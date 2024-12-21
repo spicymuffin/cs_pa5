@@ -8,7 +8,7 @@
 #include <errno.h>
 // use write() to print STDOUT (not printf())
 
-#define DEBUG 1
+#define DEBUG 0
 
 #define FILE_READ_CHUNK 4096
 #define INPUT_BUF_SIZE 512
@@ -72,11 +72,11 @@ int read_parse_line(
 	char delim
 )
 {
-	int dest_buf_idx = 0;        // Where we're writing in dest_buf
-	int word_start_offset = 0;   // Start offset of the current word in dest_buf
-	int word_counter = 0;        // How many words parsed so far
+	int dest_buf_idx = 0;        // where we're writing in dest_buf
+	int word_start_offset = 0;   // start offset of the current word in dest_buf
+	int word_counter = 0;        // how many words parsed so far
 
-	// First read if we haven't yet
+	// first read if we haven't yet
 	if (first)
 	{
 		bytes_read = read(ifd, read_buf, sizeof(read_buf));
@@ -317,6 +317,8 @@ int wordmatch(char* word1, char* word2, int word1_len, int word2_len)
 // case1: single word
 void case1(char* input_buf, int input_len, word_metadata_t* input_word_mds, int input_word_cnt)
 {
+	int space = 0;
+
 	int ln = 0;
 	int eof = 0;
 
@@ -341,10 +343,17 @@ void case1(char* input_buf, int input_len, word_metadata_t* input_word_mds, int 
 				line_word_mds[i].word_len,
 				input_word_mds[0].word_len))
 			{
+				if (space)
+				{
+					print_str(" ", 1);
+				}
+				else
+				{
+					space = 1;
+				}
 				print_int(ln);
 				print_str(":", 1);
 				print_int(line_word_mds[i].word_start_ptr);
-				print_str(" ", 1);
 			}
 		}
 
@@ -358,6 +367,8 @@ void case1(char* input_buf, int input_len, word_metadata_t* input_word_mds, int 
 // case2: check that all words are present
 void case2(char* input_buf, int input_len, word_metadata_t* input_word_mds, int input_word_cnt)
 {
+	int space = 0;
+
 	int ln = 0;
 	int eof = 0;
 
@@ -400,8 +411,15 @@ void case2(char* input_buf, int input_len, word_metadata_t* input_word_mds, int 
 
 		if (all_present)
 		{
+			if (space)
+			{
+				print_str(" ", 1);
+			}
+			else
+			{
+				space = 1;
+			}
 			print_int(ln);
-			print_str(" ", 1);
 		}
 
 	} while (!eof);
@@ -414,6 +432,8 @@ void case2(char* input_buf, int input_len, word_metadata_t* input_word_mds, int 
 // case3: double quotes, find words that are consecutive
 void case3(char* input_buf, int input_len, word_metadata_t* input_word_mds, int input_word_cnt)
 {
+	int space = 0;
+
 	int ln = 0;
 	int eof = 0;
 
@@ -454,10 +474,17 @@ void case3(char* input_buf, int input_len, word_metadata_t* input_word_mds, int 
 
 			if (all_present)
 			{
+				if (space)
+				{
+					print_str(" ", 1);
+				}
+				else
+				{
+					space = 1;
+				}
 				print_int(ln);
 				print_str(":", 1);
 				print_int(line_word_mds[i].word_start_ptr);
-				print_str(" ", 1);
 			}
 		}
 
@@ -471,6 +498,8 @@ void case3(char* input_buf, int input_len, word_metadata_t* input_word_mds, int 
 // case4: regex, find patterns of word1[delim]{at least 1 word}[delim]word2
 void case4(char* input_buf, int input_len, word_metadata_t* input_word_mds, int input_word_cnt)
 {
+	int space = 0;
+
 	int ln = 0;
 	int eof = 0;
 
@@ -532,8 +561,15 @@ void case4(char* input_buf, int input_len, word_metadata_t* input_word_mds, int 
 					// if there is a word between word1 and word2
 					if (j > 0)
 					{
+						if (space)
+						{
+							print_str(" ", 1);
+						}
+						else
+						{
+							space = 1;
+						}
 						print_int(ln);
-						print_str(" ", 1);
 						break;
 					}
 				}
